@@ -17,6 +17,7 @@ class MapSampleState extends State<MapSample> {
   MapType _type = MapType.none;
 
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  late Future<int> _counter;
   final Completer<GoogleMapController> _controller = Completer();
 
   static const LatLng _center = LatLng(45.521563, -122.677433);
@@ -31,12 +32,34 @@ class MapSampleState extends State<MapSample> {
     mapTypeInt = count;
     debugPrint(mapTypeInt.toString());
 
-    setState(() {});
+    setState(() {
+      _counter = prefs.setInt('maptype', mapTypeInt).then((bool success) {
+        return mapTypeInt;
+      });
+    });
   }
 
   @override
   void initState() {
     super.initState();
+    late int maytypeint;
+    _counter = _prefs.then((SharedPreferences prefs) {
+      maytypeint = prefs.getInt('maptype') ?? 0;
+      if (maytypeint == 0) {
+        setState(() {
+          _type = MapType.hybrid;
+        });
+      } else if (maytypeint == 1) {
+        setState(() {
+          _type = MapType.terrain;
+        });
+      } else {
+        setState(() {
+          _type = MapType.normal;
+        });
+      }
+      return _counter;
+    });
   }
 
   @override
