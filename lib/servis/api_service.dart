@@ -7,8 +7,6 @@ import 'package:google_map/utils/constants/constants.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class ApiService {
-  // DIO SETTINGS
-
   final dio = Dio(
     BaseOptions(
       baseUrl: baseUrl,
@@ -30,13 +28,11 @@ class ApiService {
     dio.interceptors.add(
       InterceptorsWrapper(
         onError: (error, handler) async {
-          //error.response.statusCode
           debugPrint("ERRORGA KIRDI:${error.message} and ${error.response}");
           return handler.next(error);
         },
         onRequest: (requestOptions, handler) async {
           debugPrint("SO'ROV  YUBORILDI :${handler.isCompleted}");
-          // return handler.resolve(Response(requestOptions: requestOptions, data: {"name": "ali", "age": 26}));
           return handler.next(requestOptions);
         },
         onResponse: (response, handler) async {

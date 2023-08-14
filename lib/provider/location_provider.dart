@@ -42,6 +42,8 @@ class LocationProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  delate(int id) async {}
+
   updateLatLong(LatLng newLatLng) {
     latLong = newLatLng;
     notifyListeners();

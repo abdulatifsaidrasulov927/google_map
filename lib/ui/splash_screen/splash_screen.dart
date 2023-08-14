@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_map/provider/location_provider.dart';
 import 'package:google_map/ui/map/map_screen_.dart';
+import 'package:google_map/utils/images/app_images.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -34,12 +36,7 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       body: Center(child: Consumer<LocationProvider>(
         builder: (context, locationProvider, child) {
-          if (locationProvider.latLong == null) {
-            return const Text("EMPTY LOCATION!!!");
-          } else {
-            return Text(
-                "Splash Screen:${locationProvider.latLong!.longitude}  and ${locationProvider.latLong!.latitude}");
-          }
+          return Lottie.asset(AppImages.mapForSplash);
         },
       )),
     );

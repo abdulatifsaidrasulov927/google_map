@@ -19,10 +19,12 @@ class UserLocationsProvider with ChangeNotifier {
   insertUserAddress(UserAddress userAddress) async {
     await LocalDatabase.insertUserAddress(userAddress);
     getUserAddresses();
+    notifyListeners();
   }
 
   deleteUserAddress(int id) async {
     await LocalDatabase.deleteUserAddress(id);
     getUserAddresses();
+    print(getUserAddresses());
   }
 }

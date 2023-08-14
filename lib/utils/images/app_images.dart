@@ -1,4 +1,4 @@
-class AppImages{
+class AppImages {
   static String account = "assets/svg/account.svg";
   static String arrow = "assets/svg/arrow.svg";
   static String buy = "assets/svg/buy.svg";
@@ -32,4 +32,7 @@ class AppImages{
   static String wishlistColorful = "assets/svg/wishlist_colorful.svg";
   static String x = "assets/svg/x.svg";
   static String google = "assets/svg/google.svg";
+
+  static String mapForSplash = "assets/lotti/lattie_map.json";
+  static String emtyForData = "assets/lotti/lottie_emty.json";
 }

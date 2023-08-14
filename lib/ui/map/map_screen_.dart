@@ -8,10 +8,13 @@ import 'package:google_map/provider/user_locations_provider.dart';
 import 'package:google_map/ui/map/widgets/address_kind_selector.dart';
 import 'package:google_map/ui/map/widgets/address_lang_selector.dart';
 import 'package:google_map/ui/map/widgets/save_button.dart';
+import 'package:google_map/utils/images/app_images.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -98,7 +101,12 @@ class MapScreenState extends State<MapScreen> {
         Provider.of<UserLocationsProvider>(context).addresses;
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue[700],
+        centerTitle: true,
+        title: const Text(
+          'Map',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.blueAccent,
       ),
       body: Stack(children: [
         GoogleMap(
@@ -137,17 +145,44 @@ class MapScreenState extends State<MapScreen> {
           ),
         ),
         Positioned(
+          left: 10,
+          right: 10,
           top: 10,
           child: Container(
-            width: 400,
-            color: Colors.transparent,
+            height: 100,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.shade600,
+                  spreadRadius: 1,
+                  blurRadius: 15,
+                  offset: const Offset(5, 5),
+                ),
+                const BoxShadow(
+                    color: Colors.white,
+                    offset: Offset(-5, -5),
+                    blurRadius: 15,
+                    spreadRadius: 1),
+              ],
+              gradient: const LinearGradient(
+                colors: [
+                  Color.fromARGB(255, 154, 204, 245),
+                  Color.fromARGB(255, 10, 223, 251)
+                ],
+                stops: [0, 1],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              color: Colors.white,
+            ),
             child: Center(
               child: Text(
                 context.watch<AddressCallProvider>().scrolledAddressText,
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 style: const TextStyle(
-                    color: Colors.red,
+                    color: Colors.white,
                     fontSize: 22,
                     fontWeight: FontWeight.w600),
               ),
@@ -161,6 +196,15 @@ class MapScreenState extends State<MapScreen> {
           child: Visibility(
             visible: context.watch<AddressCallProvider>().canSaveAddress(),
             child: SaveButton(onTap: () {
+              final snackBar = SnackBar(
+                content: const Text('save yor address'),
+                action: SnackBarAction(
+                  label: 'ok',
+                  onPressed: () {
+                    // Some code to undo the change.
+                  },
+                ),
+              );
               AddressCallProvider adp =
                   Provider.of<AddressCallProvider>(context, listen: false);
               context.read<UserLocationsProvider>().insertUserAddress(
@@ -169,6 +213,7 @@ class MapScreenState extends State<MapScreen> {
                       long: currentCameraPosition.target.longitude,
                       address: adp.scrolledAddressText,
                       created: DateTime.now().toString()));
+              ScaffoldMessenger.of(context).showSnackBar(snackBar);
             }),
           ),
         ),
@@ -353,82 +398,103 @@ class MapScreenState extends State<MapScreen> {
               child: ListView(
                 physics: const BouncingScrollPhysics(),
                 children: [
-                  if (userAddresses.isEmpty) const Text("EMPTY!!!"),
+                  if (userAddresses.isEmpty)
+                    Center(child: Lottie.asset(AppImages.emtyForData)),
                   ...List.generate(userAddresses.length, (index) {
                     UserAddress userAddress = userAddresses[index];
-                    return Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        ZoomTapAnimation(
-                          onTap: () {
-                            context
-                                .read<AddressCallProvider>()
-                                .getAddressByLatLong(
-                                    latLng: LatLng(
-                                        userAddress.lat, userAddress.long));
+                    return Slidable(
+                      endActionPane: ActionPane(
+                        motion: const ScrollMotion(),
+                        children: [
+                          SlidableAction(
+                            onPressed: (v) {
+                              setState(() {
+                                context
+                                    .read<UserLocationsProvider>()
+                                    .deleteUserAddress(userAddress.id!);
+                              });
+                            },
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                            icon: Icons.delete_sharp,
+                            label: 'Delate',
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          ZoomTapAnimation(
+                            onTap: () {
+                              context
+                                  .read<AddressCallProvider>()
+                                  .getAddressByLatLong(
+                                      latLng: LatLng(
+                                          userAddress.lat, userAddress.long));
 
-                            context.read<LocationProvider>().updateLatLong(
-                                LatLng(userAddress.lat, userAddress.long));
-                            _mapControll(
-                                lat: userAddress.lat, lot: userAddress.long);
-                            _followDateMove(
-                                cameraPosition: currentCameraPosition);
-                            Navigator.pop(context);
-                          },
-                          child: Center(
-                            child: Container(
-                              height: 90,
-                              width: 260,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.shade600,
-                                    spreadRadius: 1,
-                                    blurRadius: 15,
-                                    offset: const Offset(5, 5),
-                                  ),
-                                  const BoxShadow(
-                                      color: Colors.white,
-                                      offset: Offset(-5, -5),
+                              context.read<LocationProvider>().updateLatLong(
+                                  LatLng(userAddress.lat, userAddress.long));
+                              _mapControll(
+                                  lat: userAddress.lat, lot: userAddress.long);
+                              _followDateMove(
+                                  cameraPosition: currentCameraPosition);
+                              Navigator.pop(context);
+                            },
+                            child: Center(
+                              child: Container(
+                                height: 90,
+                                width: 260,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.shade600,
+                                      spreadRadius: 1,
                                       blurRadius: 15,
-                                      spreadRadius: 1),
-                                ],
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    Color(0xff064170),
-                                    Color(0xff89f2ff)
-                                  ],
-                                  stops: [0, 1],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                              ),
-                              child: Wrap(
-                                alignment: WrapAlignment.center,
-                                runAlignment: WrapAlignment.center,
-                                children: [
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.all(8),
-                                    child: Text(
-                                      userAddress.address,
-                                      style:
-                                          const TextStyle(color: Colors.white),
+                                      offset: const Offset(5, 5),
                                     ),
+                                    const BoxShadow(
+                                        color: Colors.white,
+                                        offset: Offset(-5, -5),
+                                        blurRadius: 15,
+                                        spreadRadius: 1),
+                                  ],
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      Color(0xff064170),
+                                      Color(0xff89f2ff)
+                                    ],
+                                    stops: [0, 1],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
                                   ),
-                                ],
+                                ),
+                                child: Wrap(
+                                  alignment: WrapAlignment.center,
+                                  runAlignment: WrapAlignment.center,
+                                  children: [
+                                    const SizedBox(
+                                      width: 10,
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.all(8),
+                                      child: Text(
+                                        userAddress.address,
+                                        style: const TextStyle(
+                                            color: Colors.white),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        )
-                      ],
+                          const SizedBox(
+                            height: 20,
+                          )
+                        ],
+                      ),
                     );
                   })
                 ],
