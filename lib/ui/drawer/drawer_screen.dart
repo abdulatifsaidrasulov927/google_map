@@ -51,11 +51,14 @@ class _DrawerScreenState extends State<DrawerScreen> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            const DrawerHeader(
+            DrawerHeader(
               decoration: BoxDecoration(
-                color: Colors.blue,
+                color: Colors.green[700],
               ),
-              child: Text('Drawer Header'),
+              child: const Text(
+                'Abudlatif Saidrasulov',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
 
             // Container(
@@ -81,7 +84,7 @@ class _DrawerScreenState extends State<DrawerScreen> {
               onTap: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => MapSample()),
+                  MaterialPageRoute(builder: (context) => const MapScreen()),
                 );
                 //   _onItemTapped(1);
 

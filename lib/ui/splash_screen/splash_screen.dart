@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_map/provider/location_provider.dart';
-import 'package:google_map/ui/drawer/drawer_screen.dart';
+import 'package:google_map/ui/map/map_screen_.dart';
 import 'package:provider/provider.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -18,7 +18,7 @@ class _SplashScreenState extends State<SplashScreen> {
         context,
         MaterialPageRoute(
           builder: (context) {
-            return DrawerScreen();
+            return const MapScreen();
           },
         ),
       );
