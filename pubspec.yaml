@@ -47,6 +47,14 @@ dependencies:
   location: ^5.0.0
   image_picker: ^1.0.1
   lottie: ^2.6.0
+  flutter_local_notifications: ^15.1.0+1
+  cached_network_image: ^3.2.3
+  
+  
+ 
+
+
+
  
   dio: ^5.3.2
   json_annotation: ^4.8.1
@@ -71,6 +79,7 @@ flutter:
 
   assets:
     - assets/lotti/
+    - assets/images/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

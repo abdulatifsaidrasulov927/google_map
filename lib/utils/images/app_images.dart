@@ -35,4 +35,5 @@ class AppImages {
 
   static String mapForSplash = "assets/lotti/lattie_map.json";
   static String emtyForData = "assets/lotti/lottie_emty.json";
+  static String couryer = "assets/images/courier.png";
 }

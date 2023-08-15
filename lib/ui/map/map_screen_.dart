@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_map/model/user_address.dart';
 import 'package:google_map/provider/address_call_provider.dart';
@@ -8,9 +9,9 @@ import 'package:google_map/provider/user_locations_provider.dart';
 import 'package:google_map/ui/map/widgets/address_kind_selector.dart';
 import 'package:google_map/ui/map/widgets/address_lang_selector.dart';
 import 'package:google_map/ui/map/widgets/save_button.dart';
-import 'package:google_map/utils/images/app_images.dart';
+import 'package:google_map/utils/ui_utils/util_function.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:lottie/lottie.dart';
+//import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';
@@ -20,13 +21,15 @@ class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
 
   @override
-  State<MapScreen> createState() => MapScreenState();
+  State<MapScreen> createState() => _MapScreenState();
 }
 
-class MapScreenState extends State<MapScreen> {
+class _MapScreenState extends State<MapScreen> {
   late CameraPosition initralCamreaPosition;
   late CameraPosition currentCameraPosition;
   bool onCameraMoveStarted = false;
+  Set<Marker> markers = {};
+
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
 
@@ -70,6 +73,7 @@ class MapScreenState extends State<MapScreen> {
   void initState() {
     LocationProvider locationProvider =
         Provider.of<LocationProvider>(context, listen: false);
+    addNewMarker(locationProvider.latLong!);
     initralCamreaPosition =
         CameraPosition(target: locationProvider.latLong!, zoom: 13);
     currentCameraPosition =
@@ -110,6 +114,10 @@ class MapScreenState extends State<MapScreen> {
       ),
       body: Stack(children: [
         GoogleMap(
+            onLongPress: (latLng) {
+              addNewMarker(latLng);
+            },
+            markers: markers,
             onCameraMove: (CameraPosition cameraPosition) {
               currentCameraPosition = cameraPosition;
             },
@@ -399,7 +407,8 @@ class MapScreenState extends State<MapScreen> {
                 physics: const BouncingScrollPhysics(),
                 children: [
                   if (userAddresses.isEmpty)
-                    Center(child: Lottie.asset(AppImages.emtyForData)),
+                    //Lottie.asset(AppImages.emtyForData)
+                    const Center(child: Text('Empty')),
                   ...List.generate(userAddresses.length, (index) {
                     UserAddress userAddress = userAddresses[index];
                     return Slidable(
@@ -522,6 +531,21 @@ class MapScreenState extends State<MapScreen> {
   Future<void> _followDateMove({required CameraPosition cameraPosition}) async {
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+  }
+
+  addNewMarker(LatLng latLng) async {
+    Uint8List uint8list =
+        await getBytesFromAsset("assets/images/courier.png", 150);
+    markers.add(Marker(
+        markerId: MarkerId(
+          DateTime.now().toString(),
+        ),
+        position: latLng,
+        icon: BitmapDescriptor.fromBytes(uint8list),
+        //BitmapDescriptor.defaultMarker,
+        infoWindow: const InfoWindow(
+            title: "Samarqand", snippet: "Falonchi Ko'chasi 45-uy ")));
+    setState(() {});
   }
 }
 //  return ListTile(
