@@ -11,7 +11,6 @@ import 'package:google_map/ui/map/widgets/address_lang_selector.dart';
 import 'package:google_map/ui/map/widgets/save_button.dart';
 import 'package:google_map/utils/ui_utils/util_function.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-//import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';
@@ -24,11 +23,12 @@ class MapScreen extends StatefulWidget {
   State<MapScreen> createState() => _MapScreenState();
 }
 
+Set<Marker> markers = {};
+
 class _MapScreenState extends State<MapScreen> {
   late CameraPosition initralCamreaPosition;
   late CameraPosition currentCameraPosition;
   bool onCameraMoveStarted = false;
-  Set<Marker> markers = {};
 
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
@@ -69,8 +69,13 @@ class _MapScreenState extends State<MapScreen> {
     });
   }
 
+  initLocation() {
+    context.read<LocationProvider>().getLocation();
+  }
+
   @override
   void initState() {
+    initLocation();
     LocationProvider locationProvider =
         Provider.of<LocationProvider>(context, listen: false);
     addNewMarker(locationProvider.latLong!);
@@ -242,7 +247,7 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
             SingleChildScrollView(
-              physics: BouncingScrollPhysics(),
+              physics: const BouncingScrollPhysics(),
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [

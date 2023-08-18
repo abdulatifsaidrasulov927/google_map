@@ -1,15 +1,19 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import 'package:google_map/ui/map/map_screen_.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
+import '../utils/ui_utils/util_function.dart';
+
 class LocationProvider with ChangeNotifier {
   LocationProvider() {
-    _getLocation();
+    getLocation();
   }
 
   LatLng? latLong;
 
-  Future<void> _getLocation() async {
+  Future<void> getLocation() async {
     Location location = Location();
 
     bool serviceEnabled;
@@ -33,6 +37,15 @@ class LocationProvider with ChangeNotifier {
     }
 
     locationData = await location.getLocation();
+    latLong = LatLng(
+      locationData.latitude!,
+      locationData.longitude!,
+    );
+    location.onLocationChanged.listen((LocationData newLocation) {
+      LatLng latLng = LatLng(newLocation.latitude!, newLocation.longitude!);
+      addNewMarker(latLng);
+      debugPrint("LONGITUDE:${newLocation.longitude}");
+    });
 
     latLong = LatLng(
       locationData.latitude!,
@@ -47,5 +60,19 @@ class LocationProvider with ChangeNotifier {
   updateLatLong(LatLng newLatLng) {
     latLong = newLatLng;
     notifyListeners();
+  }
+
+  addNewMarker(LatLng latLng) async {
+    Uint8List uint8list =
+        await getBytesFromAsset("assets/images/courier.png", 50);
+    markers.add(Marker(
+        markerId: MarkerId(
+          DateTime.now().toString(),
+        ),
+        position: latLng,
+        icon: BitmapDescriptor.fromBytes(uint8list),
+        //BitmapDescriptor.defaultMarker,
+        infoWindow: const InfoWindow(
+            title: 'Toshkent', snippet: "Falonchi Ko'chasi 45-uy ")));
   }
 }
